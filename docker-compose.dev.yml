@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  slack_app_backend:
+    container_name: SlackAppBackend
+    build: .
+    command: >
+      sh -c "
+      if [ '$$ENVIRONMENT' = 'dev' ] ; then
+        uvicorn app.main:app --reload --host 0.0.0.0 --port $$SLACK_BACKEND_FASTAPI_PORT;
+      else
+        uvicorn app.main:app --host 0.0.0.0 --port $$SLACK_BACKEND_FASTAPI_PORT;
+      fi"
+    ports:
+      - '127.0.0.1:${SLACK_BACKEND_FASTAPI_PORT}:${SLACK_BACKEND_FASTAPI_PORT}'
+    volumes:
+      - .:/app
+    working_dir: /app
+    env_file:
+      - .env
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '1k'
+        max-file: '3'
+
